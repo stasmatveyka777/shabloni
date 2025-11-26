@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice</title>
+  <style>
+    /* --- ОСНОВНІ НАЛАШТУВАННЯ (СУЧАСНИЙ ДИЗАЙН) --- */
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Сучасний шрифт без засічок */
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333; /* Темно-сірий текст, м'якше для очей */
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      /* padding: 20px; Прибираємо відступ контейнера, щоб влазило більше */
+    }
+
+    /* --- ТИПОГРАФІЯ --- */
+    h1 {
+      font-size: 24px;
+      font-weight: normal;
+      margin: 0 0 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .bold { font-weight: bold; }
+    .small { font-size: 12px; color: #666; }
+    
+    .width100 { width: 100%; }
+
+    /* --- ЛОГО ТА ШАПКА --- */
+    .header-table td {
+      vertical-align: top;
+    }
+    
+    .company-info {
+      margin-bottom: 30px;
+    }
+    
+    .label {
+      text-transform: uppercase;
+      font-size: 10px;
+      color: #888;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* --- ТАБЛИЦЯ ТОВАРІВ (КРАСИВА, БЕЗ ВЕРТИКАЛЬНИХ ЛІНІЙ) --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    /* Стиль заголовків таблиці */
+    .table-products thead th {
+      background-color: #f4f4f4; /* Світло-сірий фон шапки */
+      color: #333;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 11px;
+      padding: 12px 8px;
+      border-bottom: 2px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+    }
+    
+    .table-products thead th.name-col {
+      text-align: left; /* Назву вирівнюємо вліво */
+    }
+
+    /* Стиль рядків таблиці */
+    .table-products tbody td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eee; /* Тонка горизонтальна лінія розділення */
+      vertical-align: middle;
+    }
+
+    /* Фіксовані ширини колонок */
+    .table-products {
+      table-layout: fixed; 
+    }
+    
+    .table-products td, .table-products th {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    /* --- ПІДСУМКИ --- */
+    .totals-table {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .totals-table td {
+      padding: 5px 8px;
+      vertical-align: top;
+    }
+    
+    .grand-total {
+      font-size: 16px;
+      font-weight: bold;
+      border-top: 2px solid #333 !important; /* Жирна лінія над сумою */
+      padding-top: 10px !important;
+      white-space: nowrap;
+    }
+    
+    .summary-text {
+        padding-top: 8px !important;
+        color: #555;
+        font-style: italic;
+    }
+
+    /* --- ПІДВАЛ (ПІДПИСИ) --- */
+    .footer-table {
+      margin-top: 40px;
+      page-break-inside: avoid;
+    }
+    
+    .footer-table td {
+      padding-top: 20px;
+      vertical-align: bottom;
+    }
+
+    /* Стильна лінія для підпису через CSS border */
+    .sign-line {
+      border-top: 1px solid #333;
+      width: 90%; /* Довжина лінії */
+      display: block;
+      margin-top: 4px;
+    }
+
+    .sign-name {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 2px;
+      display: block;
+      min-height: 18px; /* Щоб лінія не стрибала, якщо імені немає */
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <table class="width100 header-table">
+    <tr>
+      <td width="60%">
+        <h1 style="margin-top:0;">Видаткова накладна</h1>
+        <span class="small" style="font-size: 14px; color: #555;">№ {{ model.id }}</span>
+      </td>
+      <td width="40%" class="text-right" style="vertical-align: bottom;">
+        {% set mnths = ['','січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'] %}
+        <span class="label">Дата:</span>
+        <span class="bold" style="font-size: 14px;">{{ model.created_at|date("j") }} {{ mnths[model.created_at|date("n")] }} {{ model.created_at|date("Y") }} р.</span>
+      </td>
+    </tr>
+  </table>
+
+  <br><br>
+
+  <table class="width100 company-info">
+    <tr>
+      <td width="50%" valign="top" style="padding-right: 20px;">
+        <span class="label">Постачальник:</span>
+        <div class="bold" style="font-size: 15px;">ФОП Тапдигова Софія Миколаївна</div>
+        <div class="small" style="margin-top: 5px; line-height: 1.6;">
+          ЄДРПОУ: 3211816643<br>
+          IBAN: UA033003350000000260012433343<br>
+          Банк: АТ «Райффайзен Банк»<br>
+          м. Чернівці
+        </div>
+      </td>
+      <td width="50%" valign="top" style="padding-left: 20px; border-left: 1px solid #eee;">
+        <span class="label">Одержувач:</span>
+        <div class="bold" style="font-size: 16px;">
+          {{ model.recipient_full_name ? model.recipient_full_name : model.client_name }}
+        </div>
+        <div class="small" style="margin-top: 5px;">
+          {{ model.client_phone }}<br>
+          {{ model.shipping_address_city }}
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="table-products">
+    <thead>
+      <tr>
+        <th class="name-col" style="width: 40%;">Назва товару</th>
+        <th style="width: 15%;">Ціна</th>
+        <th style="width: 10%;">К-сть</th>
+        <th style="width: 15%;">Ціна (Косм.)</th>
+        <th style="width: 20%; text-align: right;">Сума</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for key, product in model.products %}
+        <tr>
+          <td class="text-left">{{ product.product_name }}</td>
+          <td class="text-center">{{ product.product_price|format_currency('UAH', locale='uk') }}</td>
+          <td class="text-center">{{ product.product_quantity }}</td>
+          <td class="text-center">{{ product.price_sold|format_currency('UAH', locale='uk') }}</td>
+          <td class="text-right bold">
+            {{ (product.product_quantity * product.price_sold)|format_currency('UAH', locale='uk') }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="page-break-inside: avoid;">
+    
+    {% set products_discount = 0 %}
+    {% for key, product in model.products %}
+        {% set products_discount = products_discount + ((product.product_discount  != '-' ? product.product_discount : 0) * product.product_quantity) %}
+    {% endfor %}
+
+    <table class="totals-table">
+       <tr>
+         <td width="50%"></td> <td width="50%">
+            <table width="100%">
+              {% if products_discount > 0 or model.discount_amount or model.shipping_price  %}
+              <tr>
+                <td class="text-right small">Разом товари:</td>
+                <td class="text-right" style="width: 120px;">{{ (model.total_price + products_discount)|format_currency('UAH', locale='uk') }}</td>
+              </tr>
+              {% endif %}
+
+              {% if products_discount > 0 or model.discount_amount %}
+              <tr>
+                <td class="text-right small">Знижка:</td>
+                <td class="text-right">{{ (products_discount + model.discount_amount)|format_currency('UAH', locale='uk') }}</td>
+              </tr>
+              {% endif %}
+              
+              {% if model.shipping_price %}
+              <tr>
+                <td class="text-right small">Доставка:</td>
+                <td class="text-right">{{ model.shipping_price|format_currency('UAH', locale='uk') }}</td>
+              </tr>
+              {% endif %}
+              
+              <tr>
+                <td class="text-right bold" style="padding-top: 10px; vertical-align: bottom;">ДО СПЛАТИ:</td>
+                <td class="text-right grand-total">{{ model.grand_total|format_currency('UAH', locale='uk') }}</td>
+              </tr>
+              
+              <tr>
+                  <td colspan="2" class="text-right small summary-text">
+                     Всього найменувань {{ model.products|length }}, на суму {{ model.grand_total|format_currency('UAH', locale='uk') }}
+                  </td>
+              </tr>
+              
+            </table>
+         </td>
+       </tr>
+    </table>
+
+    <table class="width100 footer-table">
+      <tr>
+        <td width="50%" style="padding-right: 20px;">
+          <span class="label">Постачальник</span>
+          <br>
+          <span class="sign-name">ФОП Тапдигова С. М.</span>
+          <span class="sign-line"></span>
+        </td>
+        <td width="50%" style="padding-left: 20px;">
+          <span class="label">Одержувач</span>
+          <br>
+          <span class="sign-name">
+             {{ model.recipient_full_name ? model.recipient_full_name : model.client_name }}
+          </span>
+          <span class="sign-line"></span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>
