@@ -33,7 +33,7 @@
       width: 100%;
     }
 
-    /* Рамки як на малюнку */
+    /* Рамки */
     .table-products, 
     .table-products th, 
     .table-products td {
@@ -42,7 +42,7 @@
 
     /* Налаштування колонок */
     .table-products {
-      table-layout: fixed;
+      table-layout: fixed; /* Фіксована ширина */
       margin-top: 20px;
       margin-bottom: 20px;
     }
@@ -53,12 +53,14 @@
       vertical-align: middle;
       text-align: center;
       background-color: #f0f0f0;
+      word-wrap: break-word; 
     }
 
     .table-products td {
-      padding: 6px 4px;
+      padding: 8px 4px;
       vertical-align: middle;
-      word-wrap: break-word; /* Щоб текст переносився */
+      word-wrap: break-word; /* Перенесення довгих назв */
+      font-size: 14px;
     }
 
     /* --- ПІДПИСИ --- */
@@ -103,39 +105,42 @@
   <table class="table-products">
     <thead>
       <tr>
-        <th style="width: 30%;">Назва товару</th>
-        <th style="width: 15%;">Ціна клієнта<br>(РРЦ)</th>
+        <th style="width: 40%;">Назва товару</th>
+        
+        <th style="width: 12%;">Ціна клієнта<br>(РРЦ)</th>
         <th style="width: 10%;">Кількість</th>
         <th style="width: 12%;">Знижка<br>(%)</th>
-        <th style="width: 15%;">Ціна<br>спеціаліста</th>
-        <th style="width: 18%;">Сума</th>
+        <th style="width: 12%;">Ціна<br>спеціаліста</th>
+        <th style="width: 14%;">Сума</th>
       </tr>
     </thead>
     <tbody>
       {% for key, product in model.products %}
       <tr>
-        <td class="text-left">{{ product.product_name }}</td>
+        <td class="text-left bold">{{ product.product_name }}</td>
         
-        <td class="text-center">
-          {{ product.product_price|format_currency('UAH', locale='uk') }}
+        <td class="text-center bold" style="font-size: 15px;">
+          {{ product.product_price|number_format(0, ',', ' ') }} &#8372;
         </td>
         
-        <td class="text-center">{{ product.product_quantity }}</td>
+        <td class="text-center bold" style="font-size: 16px;">
+            {{ product.product_quantity }}шт
+        </td>
         
-        <td class="text-center">
+        <td class="text-center bold" style="color: #000;">
             {% if product.product_price > 0 %}
-                {{ ((1 - (product.price_sold / product.product_price)) * 100)|number_format(0) }}%
+                {{ ((1 - (product.price_sold / product.product_price)) * 100)|number_format(1, ',', '') }}%
             {% else %}
                 0%
             {% endif %}
         </td>
         
-        <td class="text-center">
-          {{ product.price_sold|format_currency('UAH', locale='uk') }}
+        <td class="text-center bold" style="font-size: 15px;">
+          {{ product.price_sold|number_format(0, ',', ' ') }} &#8372;
         </td>
         
-        <td class="text-right">
-          {{ (product.product_quantity * product.price_sold)|format_currency('UAH', locale='uk') }}
+        <td class="text-right bold" style="font-size: 15px;">
+          {{ (product.product_quantity * product.price_sold)|number_format(0, ',', ' ') }} &#8372;
         </td>
       </tr>
       {% endfor %}
@@ -145,7 +150,7 @@
   <table class="width100">
     <tr>
       <td class="text-right bold" style="font-size: 16px;">
-        Сума до оплати: <u>{{ model.grand_total|format_currency('UAH', locale='uk') }}</u>
+        Сума до оплати: <u>{{ model.grand_total|number_format(0, ',', ' ') }} &#8372;</u>
       </td>
     </tr>
   </table>
