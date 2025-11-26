@@ -78,12 +78,12 @@
       vertical-align: middle;
     }
 
-    /* --- СТИЛІ ТАБЛИЦІ --- */
+    /* --- СТИЛІ ТАБЛИЦІ ТОВАРІВ --- */
     table.table-products {
       width: 100%;
       border: 1px solid #000;
       font-size: 13px;
-      table-layout: fixed; 
+      table-layout: fixed; /* Фіксована ширина колонок */
     }
 
     table .table-products td,
@@ -97,14 +97,15 @@
       padding: 4px 6px;
     }
     
+    /* Стилі для нижньої частини з підписами */
     table.table-sum {
-      margin-top: 10px;
+      margin-top: 30px; /* Трохи більше відступу зверху */
       font-size: 13px;
     }
     
     table.table-sum td {
       padding: 3px 5px 3px 0;
-      vertical-align: bottom; /* Вирівнюємо по низу, щоб виглядало охайніше */
+      vertical-align: bottom;
     }
   </style>
 </head>
@@ -213,37 +214,36 @@
       {% endif %}
 
       <tr>
-        <td colspan="6" class="text-right">Сума до оплати:</td>
-        <td class="text-right">{{ model.grand_total|format_currency('UAH', locale='uk') }}</td>
+        <td colspan="6" class="text-right" style="font-weight: bold;">Сума до оплати:</td>
+        <td class="text-right" style="font-weight: bold;">{{ model.grand_total|format_currency('UAH', locale='uk') }}</td>
+      </tr>
+      
+      <tr>
+        <td colspan="7" class="text-right" style="padding-top: 5px;">
+           Всього найменувань {{ model.products|length }}, на суму {{ model.grand_total|format_currency('UAH', locale='uk') }}
+        </td>
       </tr>
 
   </table>
   
-  <br /><br />
+  <br />
+  
   <table class="table-sum width100">
     <tr>
-      <td colspan="3">
-        Всього найменувань {{ model.products|length }}, на суму {{ model.grand_total|format_currency('UAH', locale='uk') }}
-      </td>
-    </tr>
-    <tr>
-      <td style="width: 40%;">
-        Дата: <span class="label underline">{{ model.created_at|date("j") }} {{ mnths[model.created_at|date("n")] }} {{ model.created_at|date("Y") }} р.</span>
-      </td>
-      <td style="width: 30%;">
+      <td style="width: 50%;">
         Постачальник (ФОП Тапдигова С. М.):<br>
         <br>
         ________________________
       </td>
       
-      <td style="width: 30%;">
+      <td style="width: 50%;">
         Одержувач:<br>
         <span style="font-weight: bold;">
             {{ model.recipient_full_name ? model.recipient_full_name : model.client_name }}
         </span><br>
         ________________________
       </td>
-      </tr>
+    </tr>
   </table>
 </div>
 
