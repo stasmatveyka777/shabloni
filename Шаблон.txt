@@ -111,6 +111,23 @@
       Видаткова накладна №{{ model.id }} від {{ model.created_at|date("j") }} {{ mnths[model.created_at|date("n")] }} {{ model.created_at|date("Y") }} р.
   </div>
 
+  {% set total_rrp_sum = 0 %}
+  {% set total_savings = 0 %}
+
+  {% for product in model.products %}
+      {% set line_rrp = product.product_price * product.product_quantity %}
+      {% set line_sold = product.price_sold * product.product_quantity %}
+      
+      {# Сумуємо повну вартість (РРЦ) #}
+      {% set total_rrp_sum = total_rrp_sum + line_rrp %}
+      
+      {# Рахуємо економію на цьому товарі #}
+      {% set total_savings = total_savings + (line_rrp - line_sold) %}
+  {% endfor %}
+
+  {# Додаємо загальну знижку на чек, якщо вона є #}
+  {% set final_discount_display = total_savings + (model.discount_amount ? model.discount_amount : 0) %}
+
   <table class="table-products">
     <thead>
       <tr>
@@ -128,9 +145,7 @@
       {% for key, product in model.products %}
       <tr>
         <td class="text-center">{{ loop.index }}</td>
-
         <td class="text-center">{{ product.product_sku }}</td>
-
         <td class="text-left bold">{{ product.product_name }}</td>
         
         <td class="text-center bold">
@@ -164,19 +179,21 @@
   <table class="width100">
     <tr>
         <td class="text-right" style="padding-bottom: 5px;">Всього за товари:</td>
-        <td class="text-right bold" style="width: 120px; padding-bottom: 5px;">
-            {{ model.total_price|number_format(0, ',', ' ') }} &#8372;
+        <td class="text-right bold" style="width: 130px; padding-bottom: 5px;">
+            {{ total_rrp_sum|number_format(0, ',', ' ') }} &#8372;
         </td>
     </tr>
 
-    {% if model.discount_amount > 0 %}
     <tr>
-        <td class="text-right" style="padding-bottom: 5px;">Знижка на замовлення:</td>
+        <td class="text-right" style="padding-bottom: 5px;">Знижка:</td>
         <td class="text-right bold" style="padding-bottom: 5px;">
-            -{{ model.discount_amount|number_format(0, ',', ' ') }} &#8372;
+            {% if final_discount_display > 0 %}
+                -{{ final_discount_display|number_format(0, ',', ' ') }} &#8372;
+            {% else %}
+                0 &#8372;
+            {% endif %}
         </td>
     </tr>
-    {% endif %}
 
     {% if model.shipping_price > 0 %}
     <tr>
