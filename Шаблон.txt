@@ -2,12 +2,12 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Invoice Sketch</title>
+  <title>Invoice</title>
   <style>
-    /* --- БАЗОВІ НАЛАШТУВАННЯ --- */
+    /* --- СТИЛІ --- */
     body {
       font-family: Arial, Helvetica, sans-serif;
-      font-size: 14px;
+      font-size: 12px;
       line-height: 1.3;
       color: #000;
       margin: 0;
@@ -26,30 +26,29 @@
     .text-left { text-align: left; }
     .bold { font-weight: bold; }
     
-    /* --- ТАБЛИЦЯ --- */
+    /* Таблиця */
     table {
       border-collapse: collapse;
       border-spacing: 0;
       width: 100%;
     }
 
-    /* Рамки */
     .table-products, 
     .table-products th, 
     .table-products td {
       border: 1px solid #000;
     }
 
-    /* Налаштування колонок */
     .table-products {
-      table-layout: fixed; /* Фіксована ширина */
+      table-layout: fixed;
       margin-top: 20px;
       margin-bottom: 20px;
     }
 
     .table-products th {
-      padding: 8px 4px;
+      padding: 6px 2px;
       font-weight: bold;
+      font-size: 11px;
       vertical-align: middle;
       text-align: center;
       background-color: #f0f0f0;
@@ -57,24 +56,27 @@
     }
 
     .table-products td {
-      padding: 8px 4px;
+      padding: 6px 4px;
       vertical-align: middle;
-      word-wrap: break-word; /* Перенесення довгих назв */
-      font-size: 14px;
+      word-wrap: break-word;
+      font-size: 12px;
     }
 
-    /* --- ПІДПИСИ --- */
-    .footer-section {
-      margin-top: 40px;
+    .invoice-title {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 20px 0;
+        text-transform: uppercase;
     }
 
+    .footer-section { margin-top: 40px; }
     .sign-line {
       display: inline-block;
       width: 200px;
       border-bottom: 1px solid #000;
       margin-top: 25px;
     }
-
   </style>
 </head>
 <body>
@@ -90,56 +92,68 @@
         UA033003350000000260012433343<br>
         АТ «Райффайзен Банк»
       </td>
-      
       <td style="width: 50%; vertical-align: top; padding-left: 20px;">
         <span class="bold">Отримувач:</span><br>
         {{ model.recipient_full_name ? model.recipient_full_name : model.client_name }}
         <br>
         {{ model.client_phone }}
+        
+        {% if model.tracking_code %}
+            <br><br>
+            <span class="bold">ТТН: {{ model.tracking_code }}</span>
+        {% endif %}
       </td>
     </tr>
   </table>
 
-  <br>
+  <div class="invoice-title">
+      {% set mnths = ['','січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'] %}
+      Видаткова накладна №{{ model.id }} від {{ model.created_at|date("j") }} {{ mnths[model.created_at|date("n")] }} {{ model.created_at|date("Y") }} р.
+  </div>
 
   <table class="table-products">
     <thead>
       <tr>
-        <th style="width: 40%;">Назва товару</th>
-        
-        <th style="width: 12%;">Ціна клієнта<br>(РРЦ)</th>
-        <th style="width: 10%;">Кількість</th>
-        <th style="width: 12%;">Знижка<br>(%)</th>
-        <th style="width: 12%;">Ціна<br>спеціаліста</th>
+        <th style="width: 5%;">№</th>
+        <th style="width: 12%;">Код</th>
+        <th style="width: 28%;">Назва товару</th>
+        <th style="width: 11%;">Ціна<br>клієнта<br>(РРЦ)</th>
+        <th style="width: 9%;">Кількість</th>
+        <th style="width: 10%;">Знижка<br>(%)</th>
+        <th style="width: 11%;">Ціна<br>спеціаліста</th>
         <th style="width: 14%;">Сума</th>
       </tr>
     </thead>
     <tbody>
       {% for key, product in model.products %}
       <tr>
+        <td class="text-center">{{ loop.index }}</td>
+
+        <td class="text-center">{{ product.product_sku }}</td>
+
         <td class="text-left bold">{{ product.product_name }}</td>
         
-        <td class="text-center bold" style="font-size: 15px;">
+        <td class="text-center bold">
           {{ product.product_price|number_format(0, ',', ' ') }} &#8372;
         </td>
         
-        <td class="text-center bold" style="font-size: 16px;">
+        <td class="text-center bold">
             {{ product.product_quantity }}шт
         </td>
         
-        <td class="text-center bold" style="color: #000;">
+        <td class="text-center bold">
             {% if product.product_price > 0 %}
                 {{ ((1 - (product.price_sold / product.product_price)) * 100)|number_format(1, ',', '') }}%
             {% else %}
-                0%
+                0,0%
             {% endif %}
         </td>
         
-        <td class="text-center bold" style="font-size: 15px;">
+        <td class="text-center bold">
           {{ product.price_sold|number_format(0, ',', ' ') }} &#8372;
         </td>
         
-        <td class="text-right bold" style="font-size: 15px;">
+        <td class="text-right bold">
           {{ (product.product_quantity * product.price_sold)|number_format(0, ',', ' ') }} &#8372;
         </td>
       </tr>
@@ -149,8 +163,36 @@
 
   <table class="width100">
     <tr>
-      <td class="text-right bold" style="font-size: 16px;">
-        Сума до оплати: <u>{{ model.grand_total|number_format(0, ',', ' ') }} &#8372;</u>
+        <td class="text-right" style="padding-bottom: 5px;">Всього за товари:</td>
+        <td class="text-right bold" style="width: 120px; padding-bottom: 5px;">
+            {{ model.total_price|number_format(0, ',', ' ') }} &#8372;
+        </td>
+    </tr>
+
+    {% if model.discount_amount > 0 %}
+    <tr>
+        <td class="text-right" style="padding-bottom: 5px;">Знижка на замовлення:</td>
+        <td class="text-right bold" style="padding-bottom: 5px;">
+            -{{ model.discount_amount|number_format(0, ',', ' ') }} &#8372;
+        </td>
+    </tr>
+    {% endif %}
+
+    {% if model.shipping_price > 0 %}
+    <tr>
+        <td class="text-right" style="padding-bottom: 5px;">Доставка:</td>
+        <td class="text-right bold" style="padding-bottom: 5px;">
+            {{ model.shipping_price|number_format(0, ',', ' ') }} &#8372;
+        </td>
+    </tr>
+    {% endif %}
+
+    <tr>
+      <td class="text-right bold" style="font-size: 16px; border-top: 1px solid #000; padding-top: 10px;">
+        Сума до оплати:
+      </td>
+      <td class="text-right bold" style="font-size: 16px; border-top: 1px solid #000; padding-top: 10px;">
+         <u>{{ model.grand_total|number_format(0, ',', ' ') }} &#8372;</u>
       </td>
     </tr>
   </table>
@@ -162,7 +204,6 @@
           Постачальник: (ФОП Тапдигова С.М.)<br>
           <div class="sign-line"></div>
         </td>
-        
         <td style="width: 50%; vertical-align: top; padding-left: 20px;">
           Отримувач: ({{ model.recipient_full_name ? model.recipient_full_name : model.client_name }})<br>
           <div class="sign-line"></div>
@@ -172,6 +213,5 @@
   </div>
 
 </div>
-
 </body>
 </html>
